@@ -1,3 +1,9 @@
+# Filters for each configuration of XMAS to be "slid" across the data.
+# I kept them all to 4x4 squares so that they
+# can be compared against the same snippet;
+# that ended up not mattering because of my
+# threaded implementation, but still natural IMO.
+# These should definitely be auto-generated, though.
 filters = [
     ['X' 'M' 'A' 'S';
      'X' 'M' 'A' 'S';
@@ -48,13 +54,19 @@ filters = [
     ]
 ]
 
+# The row and column stride for each filter.
+# For instance, the first filter checks four rows at once for XMAS,
+# so there's no point in only stepping down one row. Instead,
+# we can step down four rows. However, we still need to step one
+# column at a time.
 strides = [(4,1), (4,1), (1,4), (1,4), (1,1), (1,1), (1,1), (1,1)]
 
+# How to identify matches for each filter.
 @enum Reduction begin
-    REDUCE_COL
-    REDUCE_ROW
-    REDUCE_DIAG_RIGHT_UP
-    REDUCE_DIAG_RIGHT_DOWN
+    REDUCE_COL # All values in a column must match
+    REDUCE_ROW # All values in a row must match
+    REDUCE_DIAG_RIGHT_UP # The diagonal from bottom-left to upper-right must match
+    REDUCE_DIAG_RIGHT_DOWN # The diagonal from upper-left to bottom-right must match
 end
 
 reductions = [REDUCE_ROW, REDUCE_ROW, REDUCE_COL, REDUCE_COL,
@@ -105,6 +117,7 @@ function main()
 
                 col += stride[2]
             end
+
             row += stride[1]
             col = 1
         end

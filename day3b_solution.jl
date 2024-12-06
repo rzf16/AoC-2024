@@ -16,9 +16,11 @@ function execute_enabled(line::String, index::Int)
     dont_index = !isnothing(dont_match) ? dont_match.offset : Inf
 
     if mul_index < dont_index
+        # mul happends before dont; only process the mul
         total += parse(Int, mul_match.captures[1]) * parse(Int, mul_match.captures[2])
         return mul_index + length(mul_match.match)
     elseif dont_index < mul_index
+        # dont happens before mul; only process the dont
         enabled = false
         return dont_index + length(dont_match.match)
     else
@@ -29,6 +31,7 @@ end
 function execute_disabled(line::String, index::Int)
     global enabled
 
+    # When disabled, we only care about the next do command
     do_match = match(do_regex, line, index)
     if !isnothing(do_match)
         enabled = true

@@ -1,3 +1,9 @@
+# Filters for each configuration of MAS to be "slid" across the data.
+# I kept them all to 3x3 squares so that they
+# can be compared against the same snippet;
+# that ended up not mattering because of my
+# threaded implementation, but still natural IMO.
+# These should definitely be auto-generated, though.
 filters = [
     ['M' '\0' '\0';
      '\0' 'A' '\0';
@@ -20,11 +26,13 @@ filters = [
     ],
 ]
 
+# The row and column stride for each filter.
 strides = [(1,1), (1,1), (1,1), (1,1)]
 
+# How to identify matches for each filter.
 @enum Reduction begin
-    REDUCE_DIAG_RIGHT_UP
-    REDUCE_DIAG_RIGHT_DOWN
+    REDUCE_DIAG_RIGHT_UP # The diagonal from bottom-left to upper-right must match
+    REDUCE_DIAG_RIGHT_DOWN # The diagonal from upper-left to bottom-right must match
 end
 
 reductions = [REDUCE_DIAG_RIGHT_DOWN, REDUCE_DIAG_RIGHT_DOWN,
@@ -51,7 +59,7 @@ function main()
     filter_hits_right_up = falses(size(data))
     filter_hits_right_up_lock = ReentrantLock()
 
-    # Pretty happy I did it convolution-style now :D
+    # Pretty happy I did it convolution-style now, very easy to swap out the filters :D
     Threads.@threads for i in eachindex(filters)
         filter = filters[i]
         stride = strides[i]
@@ -64,16 +72,18 @@ function main()
             while col <= size(data, 2) - size(filter,2) + 1
                 elem_matches = data[row:row+size(filter,1)-1, col:col+size(filter,2)-1] .== filter
 
-                # Reduce dimensions and OR the filters together
+                # Reduce dimensions
                 if reduction == REDUCE_DIAG_RIGHT_DOWN
                     hit = all([elem_matches[i,i]
                         for i in 1:min(size(filter,1), size(filter,2))])
+                    # OR similar filters together; either one works to create an X!
                     lock(filter_hits_right_down_lock) do
                         filter_hits_right_down[row+filter_center_offset[1], col+filter_center_offset[2]] |= hit
                     end
                 elseif reduction == REDUCE_DIAG_RIGHT_UP
                     hit = all([elem_matches[i,size(filter,2)-i+1]
                         for i in 1:min(size(filter,1), size(filter,2))])
+                    # OR similar filters together; either one works to create an X!
                     lock(filter_hits_right_up_lock) do
                         filter_hits_right_up[row+filter_center_offset[1], col+filter_center_offset[2]] |= hit
                     end
@@ -81,6 +91,7 @@ function main()
 
                 col += stride[2]
             end
+
             row += stride[1]
             col = 1
         end
