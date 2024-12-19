@@ -9,7 +9,7 @@ mutable struct TarjanVertexData
     on_stack::Bool # This vertex is still in the DFS and hasn't been committed to an SCC
 end
 function tarjan(g::AbstractDiGraph{T}) where T
-    sccs = Vector{Set{Int}}()
+    sccs = Vector{Set{T}}()
     dfs_index = 1
     scc_stack = Stack{T}()
     tarjan_data = Dict{T, TarjanVertexData}()
@@ -98,7 +98,7 @@ function tarjan(g::AbstractDiGraph{T}) where T
         # we know v is the lowpoint, such a v' cannot exist. Thus, the full SCC is given by
         # the values above v on the stack and v itself.
         if tarjan_data[v].lowlink == tarjan_data[v].index
-            curr_scc = Set{Int}()
+            curr_scc = Set{T}()
             while true
                 w = pop!(scc_stack)
                 tarjan_data[w].on_stack = false
