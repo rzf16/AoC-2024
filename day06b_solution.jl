@@ -1,5 +1,3 @@
-using BenchmarkTools
-
 include("util/graph/GraphUtils.jl")
 using .GraphUtils
 
@@ -337,4 +335,4 @@ function main()
     println(length(cycle_o_locs))
 end
 
-@btime main()
+main()
