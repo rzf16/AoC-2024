@@ -1,5 +1,3 @@
-using DataStructures
-
 mutable struct Cell
     height::UInt8
     reachable_set::Set{CartesianIndex}
@@ -67,7 +65,7 @@ function main()
         total += length(map[trailhead].reachable_set)
     end
 
-    println(total[])
+    println(total)
 end
 
 main()

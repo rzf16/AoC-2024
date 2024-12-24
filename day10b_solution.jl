@@ -1,5 +1,3 @@
-using DataStructures
-
 mutable struct Cell
     height::UInt8
     n_reachable::Int
@@ -67,7 +65,7 @@ function main()
         total += map[trailhead].n_reachable
     end
 
-    println(total[])
+    println(total)
 end
 
 main()
